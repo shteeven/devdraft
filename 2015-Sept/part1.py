@@ -41,7 +41,6 @@ def recursiveCrimeFighter(my_args):
             try:
                 officer_weight = true_vals[offset]
             except IndexError:
-                print('im here')
                 break
             if remaining > 1:
                 current_block_copy = officer_span + offset

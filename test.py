@@ -1,106 +1,97 @@
-# import sys
 #
-# class Address:
+# Create a menu and ask the user which of the following conversions they wish to perform:
+# a. Miles to kilometers
+# b. Gallons to liters
+# c. Dollars to GBP
+# d. Pounds to kilograms
+# e. Inches to centimeters
+# f. Fahrenheit to Celsius
 #
-# 	def __init__(self, addressLine):
-# 		self.addressLine = addressLine
+# 2. Your program must raise an exception if the user chooses any item not on the menu presented. Along with raising an exception, write the code to handle this exception. (LO 5)
 #
-# 	def getStreetAddress(self):
-# 		#take everything before the first comma
-# 		return self.addressLine.split(",")[0].strip()
+# 3. Once the user has chosen a menu item the program should:
 #
-# 	def getCityName(self):
-# 		#the city appears after the first comma
-# 		return self.addressLine.split(",")[-2].strip()
+# a. Ask the user for a value to convert. Refer to the input validations in Lab 3. Your program must raise and exception, and handle the exception, if an input errors occurs. (LO 5)
 #
-# 	def getState(self):
-# 		#state appears after 2 commas
-# 		stateLine = self.addressLine.split(",")[-1].strip()
-# 		return stateLine.split(" ")[0].strip().lower()
+# b. Perform the conversion and write the original value, the original unit, the converted value, and the converted unit to an output file named conversions.txt. (LO 1, 3)
 #
-# 	def getZipCode(self):
-# 		#zip is last element
-# 		stateLine = self.addressLine.split(",")[-1].strip()
-# 		return int(stateLine.split(" ")[1].strip())
-#
-#
-# class TaxCalculator:
-#
-# 	@staticmethod
-# 	def calculateTax(orderAmount, state):
-# 		if state == "arizona" or state == "az":
-# 			return orderAmount / 100 * 5
-# 		if state == "washington" or state == "wa":
-# 			return orderAmount / 100 * 9
-# 		if state == "california" or state == "ca":
-# 			return orderAmount / 100 * 6
-# 		if state == "delaware" or state == "de":
-# 			return 0
-# 		return orderAmount / 100 * 7
-#
-# class ShippingCalculator:
-#
-# 	@staticmethod
-# 	def calculateShipping(zipCode):
-# 		if zipCode > 75000:
-# 			return 10
-# 		elif zipCode >= 25000:
-# 			return 20
-# 		else:
-# 			return 30
-#
-#
-# #main
-# numTestCases = int(sys.stdin.readline().strip())
-#
-# for i in range(numTestCases):
-# 	basePrice = int(sys.stdin.readline().strip())
-# 	addressString = sys.stdin.readline().strip()
-# 	addr = Address(addressString)
-#
-# 	taxAmount = TaxCalculator.calculateTax(basePrice, addr.getState())
-# 	shippingAmount = ShippingCalculator.calculateShipping(addr.getZipCode())
-#
-# 	print (basePrice + taxAmount + shippingAmount)
-
-import sys
+# c. Repeat steps a and b 4 times (in a loop).
 
 
-def cascade(index, true_index, reach_list):
-    current_domino = reach_list[index]
-    if current_domino == 0:
-        return true_index
-    end = index + current_domino
-    if end > 0:
-        reach_values = reach_list[index:] + [current_domino + true_index]
-    else:
-        reach_values = reach_list[index:index + current_domino + 1] + [current_domino + true_index]
-    result = max(reach_values)
-    return result  # return greatest cascade+offset
+## validate inputs and catch errors
+def validateInput(data, type):
+    ## give user 3 attempts
+    for x in range(3):
+        i = str(x + 1)  # offset attempts by one
+        ## what type of data are we trying to parse
+        if type == 'float':
+            try:
+                data = float(data)
+                return data
+            except ValueError:
+                data = raw_input('Value was not a floating point; please try again: (attempt: ' + i + ')')
+        elif type == 'int':
+            try:
+                data = int(data)
+                return data
+            except ValueError:
+                data = raw_input('Value was not a integer; please try again: (attempt: ' + i + ')')
+        else:
+            ## default is to return a string value
+            return data
+    print("Sorry, but you entered an incorrect value too many times.")
+    exit(1)
 
 
-def iterate_dominoes(num_dominoes, domino_heights):
-    for i in range(num_dominoes):
-        x = (i + 1) * -1  # x provides a neg int so that indexes start at end
-        true_index = num_dominoes + x
-        domino_heights[x] = cascade(x, true_index, domino_heights)
+# Define all conversion functions here
+def milesToKilometers():
+    miles = validateInput(raw_input('Please enter number of miles:'), 'float')
+    # return list is original val, oringinal unit, new val, new unit
+    return [miles, 'miles', miles * 1.6, 'kilometers']
 
-    for i in range(num_dominoes):
-        domino_heights[i] -= i
-    return domino_heights
+def poundsToKilogram():
+    pounds = validateInput(raw_input('Please enter number of pounds:'), 'float')
+    return [pounds, 'pounds', pounds * 2.2, 'kilograms']
 
-# retrieve system arguments
-num_dominoes = int(sys.stdin.readline())
-dominoes = sys.stdin.readline()
 
-right = [int(x) for x in dominoes.split()]
-left = right[::-1]
+# decide what function to run
+def selectFunction(choice):
+    try:
+        # return the function the user picked
+        # make sure to register conversion functions here
+        return {
+            'a': milesToKilometers,
+            'd': poundsToKilogram
+        }[choice]
+    except KeyError:
+        print('The select option you selected was invalid.')
+        exit(1)
 
-# get results from both cascades
-result_right = iterate_dominoes(num_dominoes, right)
-result_left = iterate_dominoes(num_dominoes, left)[::-1]
 
-# output
-write = sys.stdout.write
-write(" ".join(str(x) for x in result_right) + '\n')
-write(" ".join(str(x) for x in result_left))
+# main function take input
+def main():
+    print('Welcome! Please select a conversion:')
+    print('"a" for miles to kilometers')
+    print('"b" for gallons to liters')
+    print('"c" for dollars to GBP')
+    print('"d" for pounds to kilograms')
+    print('"e" for inches to centimeters')
+    print('"f" for fahrenheit to Celsius')
+    # select a function and fire it off immediately
+    returnValues = selectFunction(raw_input())()
+
+    print('The result is ' + str(returnValues[2]) + ' ' + returnValues[3])
+    return returnValues
+
+
+f = open('workfile', 'w')
+# is this what she meant about running it 4 times?
+for i in range(4):
+    toWrite = main()
+    # make list a string so it can be written to file
+    print(toWrite)
+    # write to file and add a 'newline' character to the line
+    toWrite = str(toWrite) + '\n'
+    print(toWrite)
+    f.write(toWrite)
+f.close()
